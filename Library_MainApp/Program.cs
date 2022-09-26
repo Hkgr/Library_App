@@ -1,6 +1,7 @@
 ﻿using Library_Data;
 using Library_Domin;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace Library_MainApp
 {
@@ -8,6 +9,9 @@ namespace Library_MainApp
     {
         static void Main(string[] args)
         {
+            string jsonfile =  File.ReadAllText("uspwd.json");
+            var root = JsonSerializer.Deserialize<List<uspwd>>(jsonfile);
+
             AddBooks();
             Console.Write("what is your name : ");
             string userName = Console.ReadLine();
