@@ -16,4 +16,10 @@
     <ProjectReference Include="..\Library_Data\Library_Data.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="uspwd.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

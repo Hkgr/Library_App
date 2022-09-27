@@ -1,4 +1,5 @@
 ﻿using Library_Data;
+using Library_Data.Migrations;
 using Library_Domin;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
@@ -9,76 +10,141 @@ namespace Library_MainApp
     {
         static void Main(string[] args)
         {
-            string jsonfile =  File.ReadAllText("uspwd.json");
-            var root = JsonSerializer.Deserialize<List<uspwd>>(jsonfile);
-
-            AddBooks();
-            Console.Write("what is your name : ");
-            string userName = Console.ReadLine();
-            
-           
-            Console.WriteLine("-----------------------------------------\nHi  "+userName);
-            Console.Write("-----------------------------------------\nNumber of eniqe Books in Library : ");
-            GetNumberOfBooks();
-            Console.Write("\nLets make travel in our Library \n-----------------------------------------\n");
-            string cp ="" ;
-            //GetBooks();
-            Console.ForegroundColor = ConsoleColor.Blue;
-            Console.WriteLine("What I Can do for U :\n#1 Enter 1 to get quick seen " +
-                                        "\n#2 Enter 2 to see more details about specific book " +
-                                        "\n#3 Enter 3 to modify name and price for specific book " +
-                                        "\n#4 Enter 4 to Delete book " +
-                                        "\n Enter 0 to exit"+
-                                        "\nEnter --h for help", Console.ForegroundColor);
-            
-            while (cp != "0")
+;
+            init();
+            bool check = false;
+            Console.Write("Enter username : ");
+            string  userdb = Console.ReadLine();
+            Console.Write("Enter password : ");
+            string passdb = Console.ReadLine();
+            CheckLog(userdb, passdb);
+            if (CheckLog(userdb, passdb))
             {
-                Console.WriteLine("-----------------------------------------\n What U want to Do ? ");
-                cp = Console.ReadLine();
-                switch (cp)
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("--------------------dhab--------------------");
+                Console.ForegroundColor = ConsoleColor.White;
+
+                AddBooks();
+                Console.Write("what is your name : ");
+                string userName = Console.ReadLine();
+
+
+                Console.WriteLine("-----------------------------------------\nHi  " + userName);
+                Console.Write("-----------------------------------------\nNumber of eniqe Books in Library : ");
+                GetNumberOfBooks();
+                Console.Write("\nLets make travel in our Library \n-----------------------------------------\n");
+                string cp = "";
+                //GetBooks();
+                Console.ForegroundColor = ConsoleColor.Blue;
+                Console.WriteLine("What I Can do for U :\n#1 Enter 1 to get quick seen " +
+                                            "\n#2 Enter 2 to see more details about specific book " +
+                                            "\n#3 Enter 3 to modify name and price for specific book " +
+                                            "\n#4 Enter 4 to Delete book " +
+                                            "\n Enter 0 to exit" +
+                                            "\nEnter --h for help", Console.ForegroundColor);
+                Console.ForegroundColor = ConsoleColor.White;
+
+                while (cp != "0")
                 {
-                    case "1":
-                        Console.WriteLine("   ID   |   Name  ");
-                        GetBooks();
-                        break;
-                    case "2":
-                        Console.Write("in what id we talk about : ");
-                        int id2 = Convert.ToInt32(Console.ReadLine());
-                        getInfoBookById(2);
-                        break;
-                    case "3":
-                        Console.Write("in what id we talk about : ");
-                        int id3 = Convert.ToInt32(Console.ReadLine());
-                        UpdateNamePrice(id3);
-                        break;
-                    case "4":
-                        Console.Write("in what id we talk about : ");
-                        int id4 = Convert.ToInt32(Console.ReadLine());
-                        RemoveBook(id4);
-                        break;
-                    case "--h":
-                        Console.WriteLine("What I Can do for U :\n#1 Enter 1 to get quick seen " +
-                                                                "\n#2 Enter 2 to see more details about specific book " +
-                                                                "\n#3 Enter 3 to modify name and price for specific book " +
-                                                                "\n#4 Enter 4 to Delete book " +
-                                                                "\n Enter 0 to exit" +
-                                                                "Enter --h for help");
-                        break;
-                    default:
-                        Console.WriteLine("THX for visiting");
-                        break;
+                    Console.WriteLine("-----------------------------------------\n What U want to Do ? ");
+                    cp = Console.ReadLine();
+                    switch (cp)
+                    {
+                        case "1":
+                            Console.WriteLine("   ID   |   Name  ");
+                            GetBooks();
+                            break;
+                        case "2":
+                            Console.Write("in what id we talk about : ");
+                            int id2 = Convert.ToInt32(Console.ReadLine());
+                            getInfoBookById(2);
+                            break;
+                        case "3":
+                            Console.Write("in what id we talk about : ");
+                            int id3 = Convert.ToInt32(Console.ReadLine());
+                            UpdateNamePrice(id3);
+                            break;
+                        case "4":
+                            Console.Write("in what id we talk about : ");
+                            int id4 = Convert.ToInt32(Console.ReadLine());
+                            RemoveBook(id4);
+                            break;
+                        case "--h":
+                            Console.WriteLine("What I Can do for U :\n#1 Enter 1 to get quick seen " +
+                                                                    "\n#2 Enter 2 to see more details about specific book " +
+                                                                    "\n#3 Enter 3 to modify name and price for specific book " +
+                                                                    "\n#4 Enter 4 to Delete book " +
+                                                                    "\n Enter 0 to exit" +
+                                                                    "Enter --h for help");
+                            break;
+                        default:
+                            Console.WriteLine("THX for visiting");
+                            break;
+                    }
+                }
+
+
+                using (var context = new LibraryDbContext())
+                {
+                    context.Database.EnsureCreated();
+
+
+
                 }
             }
+           
+        }
 
-
+        private static bool CheckLog(string userdb, string userpass)
+        {
             using (var context = new LibraryDbContext())
             {
-                context.Database.EnsureCreated();
+                var count = context.uspwds.Count();
+                for (int i = 1; i <= count; i++)
+                {
+                    var uspw = context.uspwds.Where(e => e.id == i).ToList();
+                    
+                    foreach (var item in uspw)
+                    {
 
-                
-               
+                        var localu = item.username;
+                        var localp= item.password;
+                        if (userdb.Equals(localu) && userpass.Equals(localp))
+                        {
+                            return true;
+                        }
+
+                    }
+                }
             }
-           
+            return false;
+            
+        }
+
+        private static void init()
+        {
+            bool flag = false;
+            using (var context = new LibraryDbContext())
+            {
+                var test = context.uspwds.ToList();
+                if (test.Count > 0)
+                {
+                    flag = true;
+                }
+
+            }
+            if (!flag)
+            {
+                string jsonfile = File.ReadAllText("uspwd.json");
+                var root = JsonSerializer.Deserialize<List<uspwd>>(jsonfile);
+
+                using (var context = new LibraryDbContext())
+                {
+                    context.uspwds.AddRange(root);
+                    context.SaveChanges();
+                }
+
+            }
         }
 
         private static void RemoveBook(int id)
