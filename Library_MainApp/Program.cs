@@ -30,17 +30,19 @@ namespace Library_MainApp
 
 
                 Console.WriteLine("-----------------------------------------\nHi  " + userName);
-                Console.Write("-----------------------------------------\nNumber of eniqe Books in Library : ");
-                GetNumberOfBooks();
+               
                 Console.Write("\nLets make travel in our Library \n-----------------------------------------\n");
+                Console.Write("-----------------------------------------\nNumber of eniqe Books in Library : ");
+                Console.WriteLine(GetNumberOfBooks());
                 string cp = "";
-                //GetBooks();
+                
                 Console.ForegroundColor = ConsoleColor.Blue;
                 Console.WriteLine("What I Can do for U :\n#1 Enter 1 to get quick seen " +
                                             "\n#2 Enter 2 to see more details about specific book " +
                                             "\n#3 Enter 3 to modify name and price for specific book " +
                                             "\n#4 Enter 4 to Delete book " +
-                                            "\n Enter 0 to exit" +
+                                            "\n#5 Enter 5 to get info for all books"+
+                                            "\nEnter 0 to exit" +
                                             "\nEnter --h for help", Console.ForegroundColor);
                 Console.ForegroundColor = ConsoleColor.White;
 
@@ -51,8 +53,8 @@ namespace Library_MainApp
                     switch (cp)
                     {
                         case "1":
-                            Console.WriteLine("   ID   |   Name  ");
-                            GetBooks();
+                            Console.WriteLine("   ID   |   Name  \n-----------------");
+                            GetInfoLessBooks();
                             break;
                         case "2":
                             Console.Write("in what id we talk about : ");
@@ -69,18 +71,38 @@ namespace Library_MainApp
                             int id4 = Convert.ToInt32(Console.ReadLine());
                             RemoveBook(id4);
                             break;
+                        case "5":
+                            Console.WriteLine("   ID   |   Name  |   Auther   |   Price   |   Copies   \n---------------------------------------------------");
+                            GetBooks();
+                            break;
+                        case "d":
+                            dellet();
+                            break;
+
                         case "--h":
+                            Console.ForegroundColor = ConsoleColor.Blue;
                             Console.WriteLine("What I Can do for U :\n#1 Enter 1 to get quick seen " +
-                                                                    "\n#2 Enter 2 to see more details about specific book " +
-                                                                    "\n#3 Enter 3 to modify name and price for specific book " +
-                                                                    "\n#4 Enter 4 to Delete book " +
-                                                                    "\n Enter 0 to exit" +
-                                                                    "Enter --h for help");
+                                                        "\n#2 Enter 2 to see more details about specific book " +
+                                                        "\n#3 Enter 3 to modify name and price for specific book " +
+                                                        "\n#4 Enter 4 to Delete book " +
+                                                        "\n#5 Enter 5 to get info for all books" +
+                                                        "\nEnter 0 to exit" +
+                                                        "\nEnter --h for help", Console.ForegroundColor);
+                            Console.ForegroundColor = ConsoleColor.White;
+                            break;
+                        case "0":
+                            Console.ForegroundColor = ConsoleColor.Magenta;
+                            Console.WriteLine("THX");
+                            Console.ForegroundColor = ConsoleColor.White;
                             break;
                         default:
-                            Console.WriteLine("THX for visiting");
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            Console.WriteLine("Task not found\nTry agian :)\nuse --h for help");
+                            Console.ForegroundColor = ConsoleColor.White;
                             break;
+                      
                     }
+
                 }
 
 
@@ -92,7 +114,50 @@ namespace Library_MainApp
 
                 }
             }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("WHAT THE HELL !\nARE U HACKER ???!!\nyou enter a wrong pass or user");
+                Console.ForegroundColor = ConsoleColor.White;
+            }
            
+        }
+
+        private static void dellet()
+        {
+            using (LibraryDbContext context = new LibraryDbContext())
+            {
+                var books = context.
+                    Books.
+                    ToList();
+
+                foreach (var book in books)
+                {
+
+                   context.Books.Remove(book);
+                    context.SaveChanges();  
+
+                }
+            }
+            
+        }
+
+        private static void GetInfoLessBooks()
+        {
+            using (LibraryDbContext context = new LibraryDbContext())
+            {
+                var books = context.
+                    Books.
+                    Where(e => e.isDeleted != true).
+                    ToList();
+
+                foreach (var book in books)
+                {
+
+                    Console.WriteLine("   " + book.id + "   |   " + book.name);
+
+                }
+            }
         }
 
         private static bool CheckLog(string userdb, string userpass)
@@ -180,13 +245,15 @@ namespace Library_MainApp
             }
         }
 
-        private static void GetNumberOfBooks()
+        private static int GetNumberOfBooks()
         {
+            var count = 0;
             using (var context = new LibraryDbContext())
             {
-                var count = context.Books.Count();
-                Console.WriteLine(count);
+                count = context.Books.Count();
+               
             }
+            return count;
         }
 
         private static void getInfoBookById(int id) 
@@ -209,29 +276,55 @@ namespace Library_MainApp
 
         private static void AddBooks()
         {
-            using (LibraryDbContext context = new LibraryDbContext())
+
+            var counter = GetNumberOfBooks();
+            if (counter < 20)
             {
-                var books1 = new Book() { name = "Quran", auther = "god", copies = 100, price = 100 };
 
-                context.Books.Add(books1);
 
-                context.SaveChanges();
+                using (LibraryDbContext context = new LibraryDbContext())
+                {
+
+                    context.Books.AddRange(
+
+                        new Book() { name = "CleanCode", auther = "Robert C. Martin", price = 85, copies = 37 },
+                        new Book() { name = "Introduction to Algorithms", auther = "Thomas H. Cormen", price = 90, copies = 43 },
+                        new Book() { name = "SICP", auther = "Harold Abelson", price = 12.8, copies = 6 },
+                        new Book() { name = "The Clean Coder", auther = "Robert C. Martin", price = 66, copies = 10 },
+                        new Book() { name = "Code Complete", auther = "Steve McConnell", price = 47, copies = 82 },
+                        new Book() { name = "Design Patterns", auther = "Erich Gamma", price = 112, copies = 54 },
+                        new Book() { name = "The Pragmatic Programmer", auther = "Andrew Hunt", price = 67, copies = 25 },
+                        new Book() { name = "Refactoring", auther = "Martin Fowler", price = 21, copies = 53 }
+
+
+
+                    );
+
+
+                    context.SaveChanges();
+                }
             }
+            
         }
 
         private static void GetBooks()
         {
             using (LibraryDbContext context = new LibraryDbContext())
             {
+                var counter = GetNumberOfBooks();
                 var books = context.
                     Books.
                     Where(e => e.isDeleted !=true).
                     ToList();
-
+           
                 foreach (var book in books)
                 {
 
-                        Console.WriteLine("  " + book.id + "  |  " + book.name + "  |  " + book.auther + "  |  " + book.price + "  |  " + book.copies);
+                    Console.Write("  " + book.id + "  |");
+                    Console.Write("  " + book.name + "  |");
+                    Console.Write("  " + book.auther + " |");
+                    Console.Write("  " + book.price + "  |");
+                    Console.Write("  " + book.copies + " |\n");
 
                 }
             }
