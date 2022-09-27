@@ -12,7 +12,7 @@ namespace Library_Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Data Source = (localdb)\\ProjectModels; Initial Catalog = Library_DB1");
+            optionsBuilder.UseSqlServer("Data Source = (localdb)\\MSSQLLocalDB; Initial Catalog = Library_DB");
         }
     }
 }
